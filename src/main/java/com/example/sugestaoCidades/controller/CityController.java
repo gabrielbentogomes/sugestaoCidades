@@ -1,12 +1,14 @@
 package com.example.sugestaoCidades.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.sugestaoCidades.model.City;
 import com.example.sugestaoCidades.service.CityService;
 
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 @RestController
@@ -25,6 +27,17 @@ public class CityController {
     public List<City> getCitiesByTags(@RequestParam Set<String> tags) {
         return cityService.getCitiesByTags(tags);
     }
+
+    @GetMapping("/by-three-tags")
+    public ResponseEntity<City> getCityByThreeTags(@RequestParam Set<String> tags) {
+        try {
+            City city = cityService.getCityByThreeTags(tags);
+            return ResponseEntity.ok(city);
+        } catch (IllegalArgumentException | NoSuchElementException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
 
     @PostMapping
     public City createCity(@RequestBody City city) {
