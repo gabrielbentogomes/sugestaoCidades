@@ -5,10 +5,7 @@ import org.springframework.stereotype.Service;
 import com.example.sugestaoCidades.model.City;
 import com.example.sugestaoCidades.repository.CityRepository;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,6 +31,18 @@ public class CityService {
             throw new IllegalArgumentException("Você deve fornecer exatamente três tags.");
         }
 
+        // Filtra cidades que possuem exatamente as três tags fornecidas
+        List<City> exactMatchCities = cityRepository.findAll().stream()
+                .filter(city -> city.getTags().containsAll(tags) && city.getTags().size() == 3)
+                .collect(Collectors.toList());
+
+        if (!exactMatchCities.isEmpty()) {
+            // Seleciona uma cidade aleatória entre as correspondências exatas
+            Random random = new Random();
+            return exactMatchCities.get(random.nextInt(exactMatchCities.size()));
+        }
+
+        // Se não houver correspondência exata, ordena as cidades por relevância
         return cityRepository.findAll().stream()
                 .sorted((city1, city2) -> {
                     long count1 = city1.getTags().stream().filter(tags::contains).count();
@@ -43,7 +52,6 @@ public class CityService {
                 .findFirst()
                 .orElseThrow(() -> new NoSuchElementException("Nenhuma cidade encontrada."));
     }
-
 
     public City saveCity(City city) {
         return cityRepository.save(city);
