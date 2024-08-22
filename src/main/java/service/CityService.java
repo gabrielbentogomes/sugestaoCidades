@@ -64,10 +64,12 @@ public class CityService {
 
 
 
-    public Set<String> getAllTags() {
+    public List<String> getAllTags() {
         return cityRepository.findAll().stream()
                 .flatMap(city -> city.getTags().stream()) // Extrai todas as tags das cidades
-                .collect(Collectors.toSet()); // Coleta em um Set para evitar duplicatas
+                .distinct() // Remove duplicatas
+                .sorted() // Ordena alfabeticamente (opcional)
+                .collect(Collectors.toList()); // Coleta em uma List
     }
 
     public City saveCity(City city) {

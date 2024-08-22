@@ -8,8 +8,9 @@ import com.example.sugestaoCidades.model.City;
 import com.example.sugestaoCidades.service.CityService;
 
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Map;
 import java.util.Set;
 
 @RestController
@@ -55,10 +56,13 @@ public class CityController {
 
 
     @GetMapping("/tags")
-    public ResponseEntity<Set<String>> getAllTags() {
-        Set<String> tags = cityService.getAllTags();
-        return ResponseEntity.ok(tags);
+    public ResponseEntity<Map<String, List<String>>> getAllTags() {
+        List<String> tags = cityService.getAllTags();
+        Map<String, List<String>> response = new HashMap<>();
+        response.put("tags", tags);
+        return ResponseEntity.ok(response);
     }
+
     @PostMapping
     public City createCity(@RequestBody City city) {
         return cityService.saveCity(city);
