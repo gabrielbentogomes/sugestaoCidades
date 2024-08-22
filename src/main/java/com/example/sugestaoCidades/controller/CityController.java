@@ -31,19 +31,22 @@ public class CityController {
 
 
     @GetMapping("/by-three-tags")
-    public ResponseEntity<City> getCityByThreeTags(@RequestParam Set<String> tags) {
+    public ResponseEntity<List<City>> getCitiesByThreeTags(@RequestParam Set<String> tags) {
         // Verifica se exatamente três tags foram fornecidas
         if (tags.size() != 3) {
             return ResponseEntity.badRequest().body(null); // Retorna um erro 400 se o número de tags não for 3
         }
 
         try {
-            // Chama o serviço para obter a cidade correspondente
-            City city = cityService.getCityByThreeTags(tags);
-            return ResponseEntity.ok(city); // Retorna a cidade encontrada com um status 200
-        } catch (NoSuchElementException e) {
-            // Retorna um erro 404 se nenhuma cidade for encontrada
-            return ResponseEntity.notFound().build();
+            // Chama o serviço para obter as cidades correspondentes
+            List<City> cities = cityService.getCitiesByThreeTags(tags);
+
+            // Verifica se o resultado contém pelo menos uma cidade
+            if (cities.isEmpty()) {
+                return ResponseEntity.notFound().build(); // Retorna um erro 404 se nenhuma cidade for encontrada
+            }
+
+            return ResponseEntity.ok(cities); // Retorna a lista de cidades encontradas com um status 200
         } catch (Exception e) {
             // Retorna um erro 500 para quaisquer outras exceções inesperadas
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -51,6 +54,11 @@ public class CityController {
     }
 
 
+    @GetMapping("/tags")
+    public ResponseEntity<Set<String>> getAllTags() {
+        Set<String> tags = cityService.getAllTags();
+        return ResponseEntity.ok(tags);
+    }
     @PostMapping
     public City createCity(@RequestBody City city) {
         return cityService.saveCity(city);

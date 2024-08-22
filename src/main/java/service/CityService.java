@@ -26,7 +26,7 @@ public class CityService {
                 .orElse(Collections.emptyList()); // Retorna uma lista vazia se nenhuma cidade for encontrada
     }
 
-    public City getCityByThreeTags(Set<String> tags) {
+    public List<City> getCitiesByThreeTags(Set<String> tags) {
         if (tags.size() != 3) {
             throw new IllegalArgumentException("Você deve fornecer exatamente três tags.");
         }
@@ -36,21 +36,38 @@ public class CityService {
                 .filter(city -> city.getTags().containsAll(tags) && city.getTags().size() == 3)
                 .collect(Collectors.toList());
 
+        // Se houver cidades que correspondem exatamente às três tags, retorna essas cidades
         if (!exactMatchCities.isEmpty()) {
-            // Seleciona uma cidade aleatória entre as correspondências exatas
-            Random random = new Random();
-            return exactMatchCities.get(random.nextInt(exactMatchCities.size()));
+            // Embaralha a lista para garantir a aleatoriedade
+            Collections.shuffle(exactMatchCities);
+            return exactMatchCities.stream()
+                    .limit(2) // Retorna até duas cidades aleatórias
+                    .collect(Collectors.toList());
         }
 
-        // Se não houver correspondência exata, ordena as cidades por relevância
-        return cityRepository.findAll().stream()
+        // Se não houver pelo menos duas correspondências exatas, ordena as cidades por relevância
+        List<City> sortedCities = cityRepository.findAll().stream()
                 .sorted((city1, city2) -> {
                     long count1 = city1.getTags().stream().filter(tags::contains).count();
                     long count2 = city2.getTags().stream().filter(tags::contains).count();
                     return Long.compare(count2, count1); // Ordena pela maior correspondência
                 })
-                .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("Nenhuma cidade encontrada."));
+                .collect(Collectors.toList());
+
+        // Embaralha as cidades ordenadas por relevância para garantir a aleatoriedade
+        Collections.shuffle(sortedCities);
+        return sortedCities.stream()
+                .limit(2) // Retorna até duas cidades
+                .collect(Collectors.toList());
+    }
+
+
+
+
+    public Set<String> getAllTags() {
+        return cityRepository.findAll().stream()
+                .flatMap(city -> city.getTags().stream()) // Extrai todas as tags das cidades
+                .collect(Collectors.toSet()); // Coleta em um Set para evitar duplicatas
     }
 
     public City saveCity(City city) {
