@@ -1,5 +1,6 @@
 package com.example.sugestaoCidades.service;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.sugestaoCidades.model.City;
@@ -75,7 +76,6 @@ public class CityService {
     public City saveCity(City city) {
         return cityRepository.save(city);
     }
-
     public List<City> saveAllCities(List<City> cities) {
         return cityRepository.saveAll(cities);
     }

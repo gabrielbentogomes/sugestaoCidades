@@ -17,4 +17,8 @@ public class City {
     @ElementCollection
     private List<String> tags;
 
+    @Embedded
+    @ElementCollection
+    private List<Attraction> attraction;
+
 }
